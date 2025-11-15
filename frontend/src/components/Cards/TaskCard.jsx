@@ -97,9 +97,7 @@ const TaskCard = ({
           </div>
         </div>
         <div className='flex items-center justify-between mt-3'>
-          
-          {/* FIX: Pass the 'avatars' array instead of 'assignedTo' */}
-          <AvatarGroup avatars={avatars} />
+          <AvatarGroup avatars={assignedTo} />
 
           {attachmentCount > 0 && (
             <div className='flex items-center gap-2 bg-blue-50 px-2.5 py-1.5 rounded-lg'>
