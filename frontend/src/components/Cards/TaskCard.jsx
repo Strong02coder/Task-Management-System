@@ -33,8 +33,7 @@ const TaskCard = ( {title, description, priority, status, progress, createdAt, d
   };  
 
 
-  return (
-    <div
+  return <div
       className='bg-white rounded-lg p-4 space-y-4 cursor-pointer hover:shadow-lg transition-shadow duration-300'
       onClick={onClick}
     >
@@ -99,7 +98,7 @@ const TaskCard = ( {title, description, priority, status, progress, createdAt, d
         </div>
       </div>
     </div>
-  );
+    
 }
 
 export default TaskCard;

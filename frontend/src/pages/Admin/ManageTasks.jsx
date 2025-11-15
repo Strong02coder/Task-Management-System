@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import DashboardLayout from '../../components/layouts/DashboardLayout'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance';
@@ -15,7 +15,7 @@ const ManageTasks = () => {
 
   const navigate = useNavigate();
 
-  const getAllTasks = async () => {
+  const getAllTasks = useCallback(async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.TASKS.GET_ALL_TASKS, {
         params: {
@@ -36,7 +36,7 @@ const ManageTasks = () => {
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  };
+  }, [filterStatus]);
 
   const handleClick = (taskData) => {
     navigate('/admin/create-task', { state: { taskId: taskData._id } });
@@ -47,9 +47,9 @@ const ManageTasks = () => {
   const handleDownloadReport = async () => {};
 
   useEffect(() => {
-    getAllTasks({ filterStatus }); 
+    getAllTasks();
     return () => {};
-  }, [filterStatus]);
+  }, [getAllTasks]);
 
   return (
     <DashboardLayout activeMenu="Manage Tasks">
