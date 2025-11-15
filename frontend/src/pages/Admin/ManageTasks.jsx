@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/layouts/DashboardLayout'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { LuFileSpreadsheet } from 'react-icons/lu';
 import TaskStatusTabs from '../../components/Tables/TaskStatusTabs';
+import TaskCard from '../../components/Cards/TaskCard';
 
 const ManageTasks = () => {
   const [allTasks, setAllTasks] = useState([]);
@@ -15,7 +16,7 @@ const ManageTasks = () => {
 
   const navigate = useNavigate();
 
-  const getAllTasks = useCallback(async () => {
+  const getAllTasks = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.TASKS.GET_ALL_TASKS, {
         params: {
@@ -36,7 +37,7 @@ const ManageTasks = () => {
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  }, [filterStatus]);
+  };
 
   const handleClick = (taskData) => {
     navigate('/admin/create-task', { state: { taskId: taskData._id } });
@@ -47,9 +48,9 @@ const ManageTasks = () => {
   const handleDownloadReport = async () => {};
 
   useEffect(() => {
-    getAllTasks();
+    getAllTasks({ filterStatus }); 
     return () => {};
-  }, [getAllTasks]);
+  }, [filterStatus]);
 
   return (
     <DashboardLayout activeMenu="Manage Tasks">
