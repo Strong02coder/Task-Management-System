@@ -40,9 +40,7 @@ const TaskCard = ({
         return 'text-red-500 bg-red-50 border border-red-500/10';
     }
   };
-
-  // Helper to extract image URLs from user objects
-  const avatars = (assignedTo || []).map(user => user.profileImageUrl);
+  
 
   return (
     <div
@@ -97,6 +95,8 @@ const TaskCard = ({
           </div>
         </div>
         <div className='flex items-center justify-between mt-3'>
+          
+          {/* FIX: Pass the 'avatars' array instead of 'assignedTo' */}
           <AvatarGroup avatars={assignedTo} />
 
           {attachmentCount > 0 && (
