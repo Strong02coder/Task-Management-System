@@ -81,8 +81,6 @@ const ManageTasks = () => {
           {filteredTasks.map((item) => (
             <TaskCard 
               key={item._id}
-              
-              // Pass properties directly so TaskCard handles them correctly
               title={item.title}
               description={item.description}
               priority={item.priority}
@@ -90,11 +88,8 @@ const ManageTasks = () => {
               progress={item.progress}
               createdAt={item.createdAt}
               dueDate={item.dueDate}
-              
-              // Pass the raw array (assuming TaskCard handles the image mapping)
-              assignedTo={item.assignedTo || []}
-              
-              attachmentCount={item.attachments?.length || 0}
+              assignedTo={item.assignedTo?.map((item) => item.profileImageUrl)}
+              attachments={item.attachments?.length || 0}
               completedTodoCount={item.completedTodoCount || 0}
               todoChecklist={item.todoChecklist || []}
               onClick={() => {handleClick(item)}}
