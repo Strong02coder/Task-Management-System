@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { PRIORITY_DATA } from '../../utils/data';
 import axiosInstance from '../../utils/axiosInstance';
@@ -135,11 +135,40 @@ const CreateTask = () => {
     createTask();
   };
 
-  // Get Task Details
-  const getTaskDetails = async () => {};
+  // Get Task Details by ID
+  const getTaskDetailsByID = async () => {
+    try {
+      const response = await axiosInstance.get(
+        API_PATHS.TASKS.GET_TASK_BY_ID(taskId)
+      );
+      if (response.data) {
+        const taskInfo = response.data;
+        setCurrentTask(taskInfo);
+
+        setTaskData({
+          title: taskInfo.title,
+          description: taskInfo.description,
+          priority: taskInfo.priority,
+          dueDate: taskInfo.dueDate ? moment(taskInfo.dueDate).format('YYYY-MM-DD') : null,
+          assignedTo: taskInfo?.assignedTo?.map((item) => item._id) || [],
+          todoCheckList: taskInfo?.todoCheckList?.map((item) => item?.text || []),
+          attachments: taskInfo?.attachments || [],
+        });
+      }
+    } catch (error) {
+        console.error('Error fetching task details:', error);
+        toast.error('Failed to fetch task details');
+      }
+  };
 
   // Delete Task
   const deleteTask = async () => {};
+
+  useEffect(() => {
+    if (taskId) {
+      getTaskDetailsByID();
+    }
+  }, [taskId]);
 
   return (
     <DashboardLayout activeMenu="Create Task">
