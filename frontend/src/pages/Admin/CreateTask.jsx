@@ -11,6 +11,8 @@ import SelectDropdown from '../../components/Inputs/SelectDropdown';
 import SelectUsers from '../../components/Inputs/SelectUsers';
 import TodoListInput from '../../components/Inputs/TodoListInput';
 import AddAttachmentsInput from '../../components/Inputs/AddAttachmentsInput.jsx';
+import Modal from '../../components/Tables/Modal';
+import DeleteAlert from '../../components/Tables/DeleteAlert';
 
 const CreateTask = () => {
   const location = useLocation();
@@ -93,7 +95,38 @@ const CreateTask = () => {
   };
 
   // Update Task
-  const updateTask = async () => {};
+  const updateTask = async () => {
+    setLoading(true);
+
+    try {
+      const todoList = taskData.todoCheckList?.map((item) => {
+        const prevTodoCheckList = currentTask?.todoCheckList || [];
+        const matchedTask = prevTodoCheckList.find((task) => task.text === item.text);
+
+        return {
+          text: item,
+          completed: matchedTask ? matchedTask.completed : false,
+        };
+      });
+
+      const response = await axiosInstance.put(
+        API_PATHS.TASKS.UPDATE_TASK(taskId),
+        {
+          ...taskData,
+          todoCheckList: todoList,
+          dueDate: new Date(taskData.dueDate).toISOString(),
+        }
+      );
+
+      toast.success('Task updated successfully');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast.error("Failed to update task. Please check the console.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     setError('');
@@ -158,11 +191,22 @@ const CreateTask = () => {
     } catch (error) {
         console.error('Error fetching task details:', error);
         toast.error('Failed to fetch task details');
-      }
+    }
   };
 
   // Delete Task
-  const deleteTask = async () => {};
+  const deleteTask = async () => {
+    try {
+      await axiosInstance.delete(API_PATHS.TASKS.DELETE_TASK(taskId));
+
+      setOpenDeleteAlert(false);
+      toast.success('Task deleted successfully');
+      navigate('/admin/tasks');
+    } catch (error) {
+      console.error('Error deleting task:', error.response?.data?.message || error.message);
+      toast.error('Failed to delete task');
+    }
+  };
 
   useEffect(() => {
     if (taskId) {
@@ -308,6 +352,10 @@ const CreateTask = () => {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={openDeleteAlert} onClose={() => setOpenDeleteAlert(false)} title="Delete Task">
+        <DeleteAlert content = "Are you sure you want to delete this task?" onDelete={() => deleteTask()} />
+      </Modal>
     </DashboardLayout>
   );
 };
