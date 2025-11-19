@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import DashboardLayout from '../../components/layouts/DashboardLayout'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../utils/axiosInstance';
@@ -9,48 +9,44 @@ import TaskCard from '../../components/Cards/TaskCard';
 
 const ManageTasks = () => {
   const [allTasks, setAllTasks] = useState([]);
-
   const [filterStatus, setFilterStatus] = useState('All'); 
-
   const [tabs, setTabs] = useState([]);
 
   const navigate = useNavigate();
 
-  const getAllTasks = useCallback(async () => {
+  const getAllTasks = async () => {
     try {
-      const response = await axiosInstance.get(API_PATHS.TASKS.GET_ALL_TASKS, {
-        params: {
-          status: filterStatus === 'All' ? '' : filterStatus,
-        }
-      });
+      const response = await axiosInstance.get(API_PATHS.TASKS.GET_ALL_TASKS);
+      
       setAllTasks(response.data?.tasks?.length > 0 ? response.data.tasks : []);
 
-      // Map statusSummary data with fixed labels and order 
       const statusSummary = response.data.statusSummary || {};
       const statusArray = [
         { label: 'All', count: statusSummary.all || 0 },
         { label: 'Pending', count: statusSummary.pendingTasks || 0 },
         { label: 'In Progress', count: statusSummary.inProgressTasks || 0 },
-        { label: 'Completed', count: statusSummary.completedTasks || 0 }
+        { label: 'Completed', count: statusSummary.completedTasks || 0 } 
       ];
       setTabs(statusArray);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
-  }, [filterStatus]);
+  };
 
   const handleClick = (taskData) => {
     navigate('/admin/create-task', { state: { taskId: taskData._id } });
   };
 
-
-  // Downlaod Task Report
+  
   const handleDownloadReport = async () => {};
 
   useEffect(() => {
     getAllTasks();
-    return () => {};
-  }, [getAllTasks]);
+  }, []);
+
+  const filteredTasks = filterStatus === 'All' 
+    ? allTasks 
+    : allTasks.filter(task => task.status === filterStatus);
 
   return (
     <DashboardLayout activeMenu="Manage Tasks">
@@ -82,9 +78,11 @@ const ManageTasks = () => {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-4'>
-          {allTasks?.map((item) => (
+          {filteredTasks.map((item) => (
             <TaskCard 
               key={item._id}
+              
+              // Pass properties directly so TaskCard handles them correctly
               title={item.title}
               description={item.description}
               priority={item.priority}
@@ -92,8 +90,11 @@ const ManageTasks = () => {
               progress={item.progress}
               createdAt={item.createdAt}
               dueDate={item.dueDate}
-              assignedTo={item.assignedTo?.map((item) => item.profileImageUrl)}
-              attachments={item.attachments?.length || 0}
+              
+              // Pass the raw array (assuming TaskCard handles the image mapping)
+              assignedTo={item.assignedTo || []}
+              
+              attachmentCount={item.attachments?.length || 0}
               completedTodoCount={item.completedTodoCount || 0}
               todoChecklist={item.todoChecklist || []}
               onClick={() => {handleClick(item)}}
@@ -105,4 +106,4 @@ const ManageTasks = () => {
   )
 }
 
-export default ManageTasks; 
+export default ManageTasks;
